@@ -5,8 +5,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.system.Os.bind
-import android.util.Log
 import android.view.*
 import android.widget.BaseAdapter
 import android.widget.ImageView
@@ -14,14 +12,17 @@ import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.row_main.view.*
 
+private val names = arrayListOf<String>("You're Lucky", "You will get A", "Don't Panic")
+private val meaning = arrayListOf<String>("positive", "positive", "negative")
+private val dates = arrayListOf<String>("10-Oct-2017 19:10", "10-Oct-2017 22:10", "12-Oct-2017 19:10")
+
 class MainActivity : AppCompatActivity() {
+    private val REQUEST_CODE = 101
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-       // setSupportActionBar(tool_bar as android.support.v7.widget.Toolbar?)
-       // supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         main_listview.adapter = MyCustomAdapter(this)
     }
@@ -38,9 +39,8 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         when (item.itemId) {
             R.id.action_new -> {
-                //finish()
                 val intent = Intent(this, Main2Activity::class.java)
-                startActivity(intent)
+                startActivityForResult(intent, REQUEST_CODE);
 
                 return true
             }
@@ -50,15 +50,20 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
     private class MyCustomAdapter(context: Context): BaseAdapter(){
         private val mContext: Context
-        private val names = arrayListOf<String>("You're Lucky", "You will get A", "Don't Panic")
-        private val dates = arrayListOf<String>("You're Lucky", "You will get A", "Don't Panic")
-
 
         init {
             //,าจาก this ด้านบน
             mContext = context
+        }
+
+        fun addNewValue(msg: String, mean: String, date: String) {
+            names.add(msg)
+            meaning.add(mean)
+            dates.add(date)
+            //Log.d("names",names.last())
         }
 
         override fun getItemId(position: Int): Long {
@@ -77,7 +82,8 @@ class MainActivity : AppCompatActivity() {
             /*val textView = TextView(mContext)
             textView.text = "Show the message"
             return textView*/
-            val greyColor = Color.parseColor("#D7D5D2")
+            val blueColor = Color.parseColor("#0099FF")
+            val redColor = Color.parseColor("#FF6633")
             val rowMain: View
             if(convertView == null){
                 val layoutInflator = LayoutInflater.from(viewGroup!!.context)
@@ -89,22 +95,24 @@ class MainActivity : AppCompatActivity() {
             }
 
             val viewHolder = rowMain.tag as ViewHolder
-            if(position%2 == 0){
-                rowMain.setBackgroundColor(greyColor)
-
-                //viewHolder.rowImageView.setImageResource(R.drawable.woman)
-
+            if(meaning.get(position).equals("positive")){
+                rowMain.name_textview.setTextColor(blueColor)
+            }
+            else{
+                rowMain.name_textview.setTextColor(redColor)
             }
 
-            Log.d("Result","Load name_textView")
+            //Log.d("Result","Load name_textView")
             viewHolder.nameTextView.text = names.get(position)
-            Log.d("Result","Load position_textView")
-            viewHolder.positionTextView.text = "Row Number: $position"
+            //Log.d("Result","Load position_textView")
+            viewHolder.positionTextView.text = dates.get(position)
 
             //remove row
             rowMain.setOnClickListener {
                 rowMain.animate().setDuration(1500).alpha(0F).withEndAction({
                     names.removeAt(position)
+                    meaning.removeAt(position)
+                    dates.removeAt(position)
                     notifyDataSetChanged()
                     rowMain.setAlpha(1.0F)
                 })
@@ -114,5 +122,28 @@ class MainActivity : AppCompatActivity() {
 
         }
         private class ViewHolder(val nameTextView: TextView, val positionTextView: TextView, val rowImageView: ImageView)
+    }
+
+
+    // This method is called when the second activity finishes
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        // check that it is the SecondActivity with an OK result
+        if (resultCode == 2) {
+
+                // get String data from Intent
+            val returnMsg = data.getStringExtra("msg")
+            val returnMean = data.getStringExtra("mean")
+            val returnDate = data.getStringExtra("date")
+
+            val myCustomAdapter = MyCustomAdapter(this)
+            myCustomAdapter.addNewValue(returnMsg, returnMean, returnDate)
+
+            main_listview.adapter = MyCustomAdapter(this)
+        }
+        else if(resultCode == 3){
+            //do nothing
+        }
     }
 }
