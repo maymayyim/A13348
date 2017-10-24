@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
             textView.text = "Show the message"
             return textView*/
             val blueColor = Color.parseColor("#0099FF")
-            val redColor = Color.parseColor("#FF6633")
+            val orangeColor = Color.parseColor("#FF6633")
             val rowMain: View
             if(convertView == null){
                 val layoutInflator = LayoutInflater.from(viewGroup!!.context)
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                 rowMain.name_textview.setTextColor(blueColor)
             }
             else{
-                rowMain.name_textview.setTextColor(redColor)
+                rowMain.name_textview.setTextColor(orangeColor)
             }
 
             //Log.d("Result","Load name_textView")

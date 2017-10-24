@@ -52,6 +52,7 @@ class Main2Activity : AppCompatActivity() {
                     val format = SimpleDateFormat("dd-MMM-yyyy HH:mm")
                     dateToStr = format.format(curDate)
                     date.setText(dateToStr)
+                    textView3.setText(msg)
 
                 }
             }, object : Response.ErrorListener {
